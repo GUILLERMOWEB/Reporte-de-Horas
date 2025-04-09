@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><title>Dashboard</title></head>
+<body>
+    <h2>Bienvenido, {{ username }}</h2>
+    <a href="/registrar/entrada">Registrar Entrada</a> |
+    <a href="/registrar/salida">Registrar Salida</a> |
+    <a href="/exportar">Exportar a Excel</a> |
+    <a href="/logout">Cerrar sesión</a>
+    <h3>Registros</h3>
+    <ul>
+        {% for r in registros %}
+            <li>{{ r[2] }} {{ r[3] }} - {{ r[4] }}</li>
+        {% endfor %}
+    </ul>
+    <h4>Total trabajado: {{ total }}</h4>
+</body>
+</html>
