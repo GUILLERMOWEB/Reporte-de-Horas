@@ -6,6 +6,40 @@ import os
 from openpyxl import Workbook
 from io import BytesIO
 
+def init_db():
+    with sqlite3.connect('registro_horas.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                is_admin INTEGER DEFAULT 0
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS registros (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                usuario_id INTEGER,
+                fecha TEXT,
+                horas_trabajadas REAL,
+                tarea TEXT,
+                FOREIGN KEY(usuario_id) REFERENCES usuarios(id)
+            )
+        ''')
+        # Insertar el superusuario si no existe
+        cursor.execute("SELECT * FROM usuarios WHERE username = ?", ("Guillermo Gutierrez",))
+        if cursor.fetchone() is None:
+            from hashlib import sha256
+            hash_super = sha256("0000".encode()).hexdigest()
+            cursor.execute("INSERT INTO usuarios (username, password, is_admin) VALUES (?, ?, ?)", 
+                           ("Guillermo Gutierrez", hash_super, 1))
+        conn.commit()
+
+# Llamá a esta función antes de arrancar Flask
+init_db()
+
+
 app = Flask(__name__)
 app.secret_key = 'tu_clave_secreta'
 DB_NAME = "registro_horas.db"
